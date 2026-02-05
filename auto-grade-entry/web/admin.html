@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>管理员 - 账号创建</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <div class="title">
+          <div class="title__main">管理员</div>
+          <div class="title__sub">创建老师/管理员账号（数据按账号隔离）</div>
+        </div>
+        <div class="header__right">
+          <label class="adminShowUidLabel" title="显示账户ID">
+            <input type="checkbox" id="showUidCheck" class="adminShowUidSlider__input" />
+            <span class="adminShowUidSlider" aria-hidden="true"></span>
+            <span class="adminShowUidLabel__text">显示账户ID</span>
+          </label>
+          <button id="backBtn" class="btn btn--secondary" type="button">返回录入页</button>
+          <button id="logoutBtn" class="btn btn--secondary" type="button" style="margin-left:10px;">退出</button>
+        </div>
+      </header>
+
+      <section class="panel">
+        <div class="adminGrid">
+          <div class="adminCard">
+            <div class="adminTitle">创建账号</div>
+            <div class="field">
+              <label class="field__label" for="username">用户名</label>
+              <input id="username" class="field__control" type="text" placeholder="例如：teacher01" />
+            </div>
+            <div class="field">
+              <label class="field__label" for="password">初始密码</label>
+              <input id="password" class="field__control" type="text" placeholder="例如：123456" />
+            </div>
+
+            <div class="field">
+              <div class="field__label">账号类型（必选）</div>
+              <div class="roleChoice">
+                <label class="roleChoice__item">
+                  <input id="roleTeacher" name="role" type="radio" value="teacher" checked />
+                  <span class="roleChoice__badge">老师</span>
+                  <span class="roleChoice__desc">仅能查看和提交自己的录入数据</span>
+                </label>
+                <label class="roleChoice__item roleChoice__item--danger">
+                  <input id="roleAdmin" name="role" type="radio" value="admin" />
+                  <span class="roleChoice__badge roleChoice__badge--danger">管理员</span>
+                  <span class="roleChoice__desc">拥有账号管理与查看所有人数据的权限</span>
+                </label>
+              </div>
+            </div>
+
+            <button id="createBtn" class="btn btn--primary" type="button">创建账号</button>
+            <div id="hint" class="muted" style="margin-top:10px; min-height:1.2em;"></div>
+          </div>
+
+          <div class="adminCard adminCard--list">
+            <div class="adminTitle">账号列表</div>
+            <div class="muted adminCard__hint">点击某一行，可以在下方查看该账号的成绩数据。</div>
+            <div class="tableWrap adminCard__tableWrap adminCard__tableWrap--list" style="border:1px solid var(--line); border-radius:12px; overflow:hidden; overflow:auto;">
+              <table class="table" style="min-width: 720px;">
+                <thead>
+                  <tr>
+                    <th style="width: 120px;">账户名</th>
+                    <th class="col-uid" style="width: 180px;">账户ID</th>
+                    <th style="width: 70px;">角色</th>
+                    <th style="width: 160px;">创建时间</th>
+                    <th style="width: 180px;">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="userTbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="adminCard adminCard--state">
+            <div class="adminTitle">选中账号的数据</div>
+            <div id="stateHint" class="muted adminCard__hint">请选择左侧列表中的账号。选中后此处显示账户名与账户ID。</div>
+            <div id="stateFilterBar" class="stateFilterBar" style="display:none;">
+              <div class="stateFilterBar__filters">
+                <div class="field" style="margin:0;">
+                  <label class="field__label" for="stateClassSelect">班级</label>
+                  <select id="stateClassSelect" class="field__control" style="min-width:120px;"></select>
+                </div>
+                <div class="field" style="margin:0;">
+                  <label class="field__label" for="stateCourseSelect">课程</label>
+                  <select id="stateCourseSelect" class="field__control" style="min-width:100px;"></select>
+                </div>
+                <div class="field" style="margin:0;">
+                  <label class="field__label" for="statePageSizeSelect">每页</label>
+                  <select id="statePageSizeSelect" class="field__control" style="min-width:70px;">
+                    <option value="10" selected>10</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                    <option value="9999">全部</option>
+                  </select>
+                </div>
+              </div>
+              <div id="statePagerWrap" class="stateFilterBar__pager muted">
+                <button type="button" id="statePrevBtn" class="btn btn--mini btn--secondary">上一页</button>
+                <span id="statePageInfo">第 1 / 1 页</span>
+                <button type="button" id="stateNextBtn" class="btn btn--mini btn--secondary">下一页</button>
+              </div>
+            </div>
+            <div class="tableWrap tableWrap--adminState adminCard__tableWrap adminCard__tableWrap--state" style="border:1px solid var(--line); border-radius:12px; overflow:hidden; overflow:auto;">
+              <table class="table table--adminState" style="min-width: 820px;">
+                <thead>
+                  <tr>
+                    <th style="width: 90px; min-width: 90px;">班级</th>
+                    <th style="width: 120px; min-width: 100px;">姓名</th>
+                    <th style="width: 140px; min-width: 100px;">课程</th>
+                    <th style="width: 110px; min-width: 100px;">平时成绩</th>
+                    <th style="width: 110px; min-width: 100px;">考试成绩</th>
+                    <th style="width: 110px; min-width: 100px;">最终成绩</th>
+                    <th style="width: 100px; min-width: 90px;">状态</th>
+                  </tr>
+                </thead>
+                <tbody id="stateTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- 管理员强制修改密码浮层 -->
+    <div id="adminPwdOverlay" class="overlay" style="display: none;">
+      <div class="overlay__backdrop"></div>
+      <div class="overlay__box" style="min-width: 320px;">
+        <div class="overlay__title">强制修改密码</div>
+        <p id="adminPwdTarget" class="muted" style="margin-top:8px; font-size:13px;"></p>
+        <div class="field" style="margin-top:12px;">
+          <label class="field__label" for="adminPwdNew">新密码</label>
+          <input id="adminPwdNew" class="field__control overlay__input" type="password" placeholder="请输入新密码" />
+        </div>
+        <div class="field" style="margin-top:10px;">
+          <label class="field__label" for="adminPwdConfirm">确认新密码</label>
+          <input id="adminPwdConfirm" class="field__control overlay__input" type="password" placeholder="请再次输入新密码" />
+        </div>
+        <div id="adminPwdHint" class="overlay__hint muted" style="margin-top:10px; min-height:1.2em;"></div>
+        <div style="margin-top:14px; display:flex; gap:10px; justify-content:flex-end;">
+          <button id="adminPwdCancel" class="btn btn--secondary" type="button">取消</button>
+          <button id="adminPwdSubmit" class="btn btn--primary" type="button">确定</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      async function apiJson(path, opts) {
+        const res = await fetch(path, { credentials: "include", ...opts });
+        const ct = (res.headers.get("Content-Type") || "").toLowerCase();
+        if (!ct.includes("application/json")) {
+          throw new Error("接口返回了非 JSON（当前可能是静态服务器在响应）。请用内置服务器启动：在项目里执行 cd server 再 npm run dev，然后访问 http://localhost:5173");
+        }
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || "请求失败");
+        return data;
+      }
+
+      function fmt(ts) {
+        if (!ts) return "";
+        const d = new Date(ts);
+        const pad = (n) => String(n).padStart(2, "0");
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      }
+      function escapeHtml(s) {
+        const t = String(s ?? "");
+        return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      }
+
+      async function guardAdmin() {
+        try {
+          const me = await apiJson("/api/me");
+          if (me?.user?.role !== "admin") throw new Error("FORBIDDEN");
+        } catch {
+          location.href = "/login.html";
+        }
+      }
+
+      const els = {
+        adminGrid: document.querySelector(".adminGrid"),
+        showUidCheck: document.getElementById("showUidCheck"),
+        backBtn: document.getElementById("backBtn"),
+        logoutBtn: document.getElementById("logoutBtn"),
+        username: document.getElementById("username"),
+        password: document.getElementById("password"),
+        roleTeacher: document.getElementById("roleTeacher"),
+        roleAdmin: document.getElementById("roleAdmin"),
+        createBtn: document.getElementById("createBtn"),
+        hint: document.getElementById("hint"),
+        userTbody: document.getElementById("userTbody"),
+        stateTbody: document.getElementById("stateTbody"),
+        stateHint: document.getElementById("stateHint"),
+        stateFilterBar: document.getElementById("stateFilterBar"),
+        stateClassSelect: document.getElementById("stateClassSelect"),
+        stateCourseSelect: document.getElementById("stateCourseSelect"),
+        statePageSizeSelect: document.getElementById("statePageSizeSelect"),
+        statePagerWrap: document.getElementById("statePagerWrap"),
+        statePrevBtn: document.getElementById("statePrevBtn"),
+        stateNextBtn: document.getElementById("stateNextBtn"),
+        statePageInfo: document.getElementById("statePageInfo"),
+        adminPwdOverlay: document.getElementById("adminPwdOverlay"),
+        adminPwdTarget: document.getElementById("adminPwdTarget"),
+        adminPwdNew: document.getElementById("adminPwdNew"),
+        adminPwdConfirm: document.getElementById("adminPwdConfirm"),
+        adminPwdHint: document.getElementById("adminPwdHint"),
+        adminPwdCancel: document.getElementById("adminPwdCancel"),
+        adminPwdSubmit: document.getElementById("adminPwdSubmit"),
+      };
+      let adminPwdUserId = "";
+      let adminStateRows = [];
+      let adminStateGradeFormula = null;
+      let adminStateClass = "全部";
+      let adminStateCourse = "全部";
+      let adminStatePageSize = 10;
+      let adminStatePageIndex = 1;
+      let showUid = localStorage.getItem("adminShowUid") !== "0";
+      let selectedUsername = "";
+      let selectedUserId = "";
+      let lastRestHtml = "";
+
+      if (els.showUidCheck) {
+        els.showUidCheck.checked = showUid;
+        els.showUidCheck.addEventListener("change", () => {
+          showUid = els.showUidCheck.checked;
+          localStorage.setItem("adminShowUid", showUid ? "1" : "0");
+          if (els.adminGrid) els.adminGrid.classList.toggle("hide-uid", !showUid);
+          if (selectedUserId && els.stateHint) setStateHint(lastRestHtml);
+        });
+      }
+      if (els.adminGrid) els.adminGrid.classList.toggle("hide-uid", !showUid);
+      setStateHint();
+
+      function setStateHint(restHtml) {
+        if (!els.stateHint) return;
+        if (!selectedUserId) {
+          els.stateHint.innerHTML = "请选择左侧列表中的账号。选中后此处显示账户名" + (showUid ? "与账户ID" : "") + "。";
+          return;
+        }
+        const line = showUid ? `账户名: ${selectedUsername}，账户ID: ${selectedUserId}` : `账户名: ${selectedUsername}`;
+        els.stateHint.innerHTML = restHtml ? line + "。<br>" + restHtml : line;
+      }
+
+      function optionizeSelect(selectEl, values) {
+        if (!selectEl) return;
+        selectEl.innerHTML = values.map((v) => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
+      }
+
+      function getFilteredAdminRows() {
+        let rows = adminStateRows;
+        if (adminStateClass && adminStateClass !== "全部") {
+          rows = rows.filter((r) => (r.className ?? "") === adminStateClass);
+        }
+        if (adminStateCourse && adminStateCourse !== "全部") {
+          rows = rows.filter((r) => (r.course ?? "") === adminStateCourse);
+        }
+        return rows;
+      }
+
+      function renderAdminStateTable() {
+        const filtered = getFilteredAdminRows();
+        const total = filtered.length;
+        const pageSize = Math.max(1, parseInt(els.statePageSizeSelect?.value || "10", 10) || 10);
+        const totalPages = Math.max(1, Math.ceil(total / pageSize));
+        const pageIndex = Math.min(totalPages, Math.max(1, adminStatePageIndex));
+        const start = (pageIndex - 1) * pageSize;
+        const end = start + pageSize;
+        const pageRows = filtered.slice(start, end);
+
+        const defaultFormula = { type: "weighted", terms: [{ name: "平时成绩", weight: 0.4 }, { name: "考试成绩", weight: 0.6 }] };
+        const formula = adminStateGradeFormula && adminStateGradeFormula.terms?.length >= 2 ? adminStateGradeFormula : defaultFormula;
+        const computeFinal = (r) => {
+          const v0 = r.usual ?? 0;
+          const v1 = r.exam ?? 0;
+          if (formula.type === "weighted" && formula.terms?.length >= 2) {
+            const w0 = formula.terms[0].weight ?? 0.4;
+            const w1 = formula.terms[1].weight ?? 0.6;
+            return Math.round(v0 * w0 + v1 * w1);
+          }
+          return v0 + v1;
+        };
+        els.stateTbody.innerHTML = pageRows
+          .map((r) => {
+            const final = computeFinal(r);
+            const status = r.submitted ? "已提交" : (r.dirty ? "未提交（已修改）" : "未提交");
+            return `
+              <tr>
+                <td>${String(r.className ?? "")}</td>
+                <td>${String(r.name ?? "")}</td>
+                <td>${String(r.course ?? "")}</td>
+                <td>${r.usual ?? ""}</td>
+                <td>${r.exam ?? ""}</td>
+                <td>${final}</td>
+                <td><span class="muted">${status}</span></td>
+              </tr>
+            `;
+          })
+          .join("");
+
+        if (els.statePageInfo) els.statePageInfo.textContent = `第 ${pageIndex} / ${totalPages} 页（共 ${total} 条）`;
+        if (els.statePrevBtn) els.statePrevBtn.disabled = pageIndex <= 1;
+        if (els.stateNextBtn) els.stateNextBtn.disabled = pageIndex >= totalPages;
+        adminStatePageIndex = pageIndex;
+      }
+
+      async function loadUsers() {
+        const { users } = await apiJson("/api/admin/users");
+        els.userTbody.innerHTML = (users || [])
+          .sort((a, b) => (b.created_at || 0) - (a.created_at || 0))
+          .map(
+            (u) => `
+              <tr data-id="${String(u.id || "").replace(/"/g, "&quot;")}" data-username="${String(u.username || "").replace(/"/g, "&quot;")}">
+                <td><strong>${escapeHtml(u.username || "")}</strong></td>
+                <td class="col-uid"><span class="muted" style="font-size:11px;">${escapeHtml(u.id || "")}</span></td>
+                <td>${u.role === "admin" ? "管理员" : "老师"}</td>
+                <td><span class="muted">${fmt(u.created_at)}</span></td>
+                <td>
+                  <button type="button" class="btn btn--mini btn--secondary admin-action-pwd" data-user-id="${String(u.id || "").replace(/"/g, "&quot;")}" data-username="${escapeHtml(u.username || "")}">修改密码</button>
+                  <button type="button" class="btn btn--mini btn--danger-soft admin-action-del" data-user-id="${String(u.id || "").replace(/"/g, "&quot;")}" data-username="${escapeHtml(u.username || "")}" style="margin-left:6px;">删除</button>
+                </td>
+              </tr>
+            `
+          )
+          .join("");
+      }
+
+      async function createUser() {
+        els.createBtn.disabled = true;
+        els.hint.textContent = "正在创建…";
+        try {
+          const username = els.username.value.trim();
+          const password = els.password.value.trim();
+          const role = els.roleAdmin.checked ? "admin" : "teacher";
+          if (!username || !password) throw new Error("请输入用户名和密码");
+          await apiJson("/api/admin/users", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password, role }),
+          });
+          els.hint.textContent = `创建成功：${username}`;
+          els.password.value = "";
+          await loadUsers();
+        } catch (e) {
+          els.hint.textContent = "创建失败：" + (e?.message || String(e));
+        } finally {
+          els.createBtn.disabled = false;
+        }
+      }
+
+      els.backBtn.addEventListener("click", () => (location.href = "/index.html"));
+      els.logoutBtn.addEventListener("click", async () => {
+        try {
+          await apiJson("/api/auth/logout", { method: "POST" });
+        } catch {}
+        location.href = "/login.html";
+      });
+      // 管理员强制修改密码浮层
+      els.adminPwdCancel?.addEventListener("click", () => {
+        if (els.adminPwdOverlay) els.adminPwdOverlay.style.display = "none";
+      });
+      els.adminPwdOverlay?.addEventListener("click", (e) => {
+        if (e.target.classList.contains("overlay__backdrop")) els.adminPwdOverlay.style.display = "none";
+      });
+      els.adminPwdSubmit?.addEventListener("click", async () => {
+        const newPwd = (els.adminPwdNew?.value ?? "").trim();
+        const confirmPwd = (els.adminPwdConfirm?.value ?? "").trim();
+        if (els.adminPwdHint) els.adminPwdHint.textContent = "";
+        if (!adminPwdUserId) return;
+        if (!newPwd) {
+          if (els.adminPwdHint) els.adminPwdHint.textContent = "请填写新密码。";
+          return;
+        }
+        if (newPwd !== confirmPwd) {
+          if (els.adminPwdHint) els.adminPwdHint.textContent = "两次输入的新密码不一致。";
+          return;
+        }
+        try {
+          await apiJson("/api/admin/users/" + encodeURIComponent(adminPwdUserId) + "/password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ newPassword: newPwd }),
+          });
+          if (els.adminPwdHint) els.adminPwdHint.textContent = "密码已修改。";
+          if (els.adminPwdHint) els.adminPwdHint.style.color = "var(--ok)";
+          setTimeout(() => {
+            if (els.adminPwdOverlay) els.adminPwdOverlay.style.display = "none";
+          }, 800);
+        } catch (err) {
+          if (els.adminPwdHint) els.adminPwdHint.textContent = err?.message || "修改失败";
+          if (els.adminPwdHint) els.adminPwdHint.style.color = "var(--danger)";
+        }
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && els.adminPwdOverlay?.style.display === "grid") {
+          els.adminPwdOverlay.style.display = "none";
+        }
+      });
+      // 操作列：修改密码、删除（事件委托）
+      els.userTbody.addEventListener("click", async (e) => {
+        const pwdBtn = e.target.closest(".admin-action-pwd");
+        const delBtn = e.target.closest(".admin-action-del");
+        if (pwdBtn) {
+          e.preventDefault();
+          e.stopPropagation();
+          adminPwdUserId = pwdBtn.getAttribute("data-user-id") || "";
+          const uname = pwdBtn.getAttribute("data-username") || "";
+          if (els.adminPwdTarget) els.adminPwdTarget.textContent = "为账号「" + uname + "」设置新密码：";
+          if (els.adminPwdNew) els.adminPwdNew.value = "";
+          if (els.adminPwdConfirm) els.adminPwdConfirm.value = "";
+          if (els.adminPwdHint) els.adminPwdHint.textContent = "";
+          if (els.adminPwdOverlay) els.adminPwdOverlay.style.display = "grid";
+          return;
+        }
+        if (delBtn) {
+          e.preventDefault();
+          e.stopPropagation();
+          const userId = delBtn.getAttribute("data-user-id") || "";
+          const uname = delBtn.getAttribute("data-username") || "";
+          if (!userId) return;
+          if (!confirm("确认删除账号「" + uname + "」？该账号的成绩数据也会被删除，且不可恢复。")) return;
+          try {
+            await apiJson("/api/admin/users/" + encodeURIComponent(userId), { method: "DELETE" });
+            els.hint.textContent = "已删除账号「" + uname + "」。";
+            await loadUsers();
+            selectedUserId = "";
+            selectedUsername = "";
+            lastRestHtml = "";
+            setStateHint();
+            els.stateTbody.innerHTML = "";
+            if (els.stateFilterBar) els.stateFilterBar.style.display = "none";
+            adminStateRows = [];
+            adminStateGradeFormula = null;
+          } catch (err) {
+            els.hint.textContent = "删除失败：" + (err?.message || String(err));
+          }
+          return;
+        }
+        const tr = e.target.closest("tr[data-id]");
+        if (!tr) return;
+        const userId = tr.getAttribute("data-id");
+        const username = tr.getAttribute("data-username") || "";
+        selectedUsername = username;
+        selectedUserId = userId;
+        els.stateHint.textContent = `正在加载「${username}」的数据…`;
+        els.stateTbody.innerHTML = "";
+        const q = `?t=${Date.now()}`;
+        const fetchOpts = { cache: "no-store", credentials: "include" };
+        try {
+          const meta = await apiJson(`/api/admin/state-meta/${encodeURIComponent(userId)}${q}`, fetchOpts);
+          const data = await apiJson(`/api/admin/state/${encodeURIComponent(userId)}${q}`, fetchOpts);
+          // 仅当当前选中的仍是本次请求的账号时才更新 UI，避免快速切换时后返回的请求覆盖成错误账号的数据
+          if (selectedUserId !== userId) return;
+          // 兼容 { state: { rows } } 或 直接 { rows }，避免解析不一致导致“有数据却显示无”
+          const state = (data && data.state != null) ? data.state : data;
+          const rows = (state && Array.isArray(state.rows)) ? state.rows : [];
+          if (!rows.length) {
+            const metaLine = (meta && (meta.hasFile === false || meta.rowCount === 0))
+              ? `（服务器 hasFile: ${!!(meta && meta.hasFile)}，rowCount: ${(meta && meta.rowCount) ?? 0}；请确认老师端「当前账号」的 ID 与此处一致，且与您使用同一地址访问）`
+              : "";
+            const parseHint = (meta && meta.rowCount > 0 && rows.length === 0)
+              ? "（服务器返回 rowCount: " + meta.rowCount + "，但前端未解析到 rows，请刷新重试或联系排查）"
+              : "";
+            lastRestHtml = `账号「${username}」当前没有任何数据${metaLine}${parseHint}`;
+            setStateHint(lastRestHtml);
+            if (els.stateFilterBar) els.stateFilterBar.style.display = "none";
+            els.stateTbody.innerHTML = "";
+            return;
+          }
+          adminStateRows = rows;
+          adminStateGradeFormula = (state && state.gradeFormula) ? state.gradeFormula : null;
+          const classes = ["全部", ...Array.from(new Set(rows.map((r) => String(r.className ?? "").trim()).filter(Boolean)))];
+          const courses = ["全部", ...Array.from(new Set(rows.map((r) => String(r.course ?? "").trim()).filter(Boolean)))];
+          optionizeSelect(els.stateClassSelect, classes);
+          optionizeSelect(els.stateCourseSelect, courses);
+          adminStateClass = "全部";
+          adminStateCourse = "全部";
+          adminStatePageIndex = 1;
+          if (els.stateClassSelect) els.stateClassSelect.value = "全部";
+          if (els.stateCourseSelect) els.stateCourseSelect.value = "全部";
+          if (els.stateFilterBar) els.stateFilterBar.style.display = "flex";
+          const defaultFormula = { type: "weighted", terms: [{ name: "平时成绩", weight: 0.4 }, { name: "考试成绩", weight: 0.6 }] };
+          const formula = adminStateGradeFormula && adminStateGradeFormula.terms?.length >= 2 ? adminStateGradeFormula : defaultFormula;
+          const ratioText = formula.type === "weighted" && formula.terms?.length >= 2
+            ? `成绩计算比例：${formula.terms[0].name || "平时"} ${Math.round((formula.terms[0].weight ?? 0.4) * 100)}%，${formula.terms[1].name || "考试"} ${Math.round((formula.terms[1].weight ?? 0.6) * 100)}%`
+            : "成绩计算比例：平时 40%，考试 60%";
+          lastRestHtml = `账号「${username}」的当前数据（共 ${rows.length} 行），可按班级/课程筛选、翻页。${ratioText}`;
+          setStateHint(lastRestHtml);
+          renderAdminStateTable();
+        } catch (err) {
+          if (selectedUserId !== userId) return;
+          els.stateHint.textContent = `加载失败：${err?.message || String(err)}`;
+        }
+      });
+      els.createBtn.addEventListener("click", createUser);
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") createUser();
+      });
+
+      // 选中账号数据的筛选与分页
+      els.stateClassSelect?.addEventListener("change", () => {
+        adminStateClass = els.stateClassSelect.value || "全部";
+        adminStatePageIndex = 1;
+        renderAdminStateTable();
+      });
+      els.stateCourseSelect?.addEventListener("change", () => {
+        adminStateCourse = els.stateCourseSelect.value || "全部";
+        adminStatePageIndex = 1;
+        renderAdminStateTable();
+      });
+      els.statePageSizeSelect?.addEventListener("change", () => {
+        adminStatePageSize = parseInt(els.statePageSizeSelect.value || "10", 10) || 10;
+        adminStatePageIndex = 1;
+        renderAdminStateTable();
+      });
+      els.statePrevBtn?.addEventListener("click", () => {
+        if (adminStatePageIndex <= 1) return;
+        adminStatePageIndex -= 1;
+        renderAdminStateTable();
+      });
+      els.stateNextBtn?.addEventListener("click", () => {
+        const filtered = getFilteredAdminRows();
+        const pageSize = Math.max(1, parseInt(els.statePageSizeSelect?.value || "10", 10) || 10);
+        const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+        if (adminStatePageIndex >= totalPages) return;
+        adminStatePageIndex += 1;
+        renderAdminStateTable();
+      });
+
+      (async () => {
+        await guardAdmin();
+        await loadUsers();
+      })();
+    </script>
+  </body>
+</html>
+

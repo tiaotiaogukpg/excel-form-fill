@@ -1,0 +1,502 @@
+:root{
+  --bg:#0b1220;
+  --panel:#0f1b33;
+  --panel2:#0c1730;
+  --text:#e8eefc;
+  --muted:#a8b6d6;
+  --line:rgba(255,255,255,.08);
+  --primary:#4f8cff;
+  --primary2:#2f6fff;
+  --ok:#2ecc71;
+  --warn:#ffb020;
+  --danger:#ff4d4f;
+  --shadow: 0 12px 30px rgba(0,0,0,.35);
+  --radius:14px;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans", "Microsoft YaHei", sans-serif;
+  color:var(--text);
+  background: radial-gradient(1000px 600px at 20% 10%, rgba(79,140,255,.25), transparent 60%),
+              radial-gradient(900px 500px at 90% 20%, rgba(46,204,113,.18), transparent 55%),
+              radial-gradient(900px 600px at 50% 90%, rgba(255,176,32,.10), transparent 55%),
+              var(--bg);
+}
+
+.app{
+  max-width: 1200px;
+  margin: 22px auto;
+  padding: 0 18px 22px;
+}
+
+.header{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap: 12px;
+  padding: 14px 14px 10px;
+}
+
+.title__main{
+  font-size: 22px;
+  font-weight: 760;
+  letter-spacing: .2px;
+}
+.title__sub{
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  border:1px solid var(--line);
+  background: rgba(255,255,255,.03);
+}
+.badge--ok{ color: #bfead0; border-color: rgba(46,204,113,.25); background: rgba(46,204,113,.08); }
+.badge--warn{ color: #ffe1a7; border-color: rgba(255,176,32,.25); background: rgba(255,176,32,.08); }
+
+.panel{
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 10px 14px 12px;
+}
+
+.filters{
+  display:grid;
+  grid-template-columns: 180px 220px 1fr 120px;
+  gap: 10px 12px;
+}
+
+/* 成绩比例 + 添加学生 + 提交本页 + 提交全部 同一行，压缩上方卡片 */
+.topActionsRow{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+.gradeFormulaBlock{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.gradeFormulaHintPanel{
+  font-size: 13px;
+  color: var(--muted);
+}
+.topActionsRow .studentDataActions{
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.panelHint{
+  margin: 6px 0 0;
+  font-size: 12px;
+}
+
+.importBar{
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  display:grid;
+  grid-template-columns: 1.2fr 1fr auto;
+  gap: 12px;
+  align-items: end;
+}
+.importActions{
+  display:flex;
+  gap: 10px;
+  align-items:center;
+  justify-content:flex-end;
+}
+.importBar .muted{
+  grid-column: 1 / -1;
+  margin-top: 2px;
+}
+
+.field__label{
+  display:block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.field__control{
+  width: 100%;
+  padding: 10px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(0,0,0,.18);
+  color: var(--text);
+  outline: none;
+}
+.field__control:focus{
+  border-color: rgba(79,140,255,.55);
+  box-shadow: 0 0 0 4px rgba(79,140,255,.18);
+}
+
+/* 下拉框：深色背景，字体更突出 */
+select.field__control{
+  background: rgba(0,0,0,.35);
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a8b6d6' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+select.field__control option{
+  background: var(--panel);
+  color: var(--text);
+}
+
+/* 选择文件框：与上方表单单框统一样式（深色边框、背景、圆角） */
+.fileWrap{
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(0,0,0,.18);
+  color: var(--text);
+}
+.fileWrap:hover{
+  border-color: rgba(255,255,255,.12);
+}
+.fileWrap:focus-within{
+  border-color: rgba(79,140,255,.55);
+  box-shadow: 0 0 0 4px rgba(79,140,255,.18);
+}
+.field__control--file{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  font-size: 0;
+}
+.fileLabel{
+  font-size: 14px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+.fileWrap.fileWrap--has-file .fileLabel{
+  color: var(--text);
+}
+
+/* 导入后自动提交：滑块样式（与页面统一深色） */
+.importToggle.switchWrap{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+.switchInput{
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+}
+.switchSlider{
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: 999px;
+  background: rgba(0,0,0,.35);
+  border: 1px solid var(--line);
+  flex-shrink: 0;
+  transition: background .2s, border-color .2s, box-shadow .2s;
+}
+.switchSlider::after{
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--text);
+  box-shadow: 0 1px 3px rgba(0,0,0,.3);
+  transition: transform .2s;
+}
+.switchInput:checked + .switchSlider{
+  background: rgba(79,140,255,.35);
+  border-color: rgba(79,140,255,.5);
+}
+.switchInput:checked + .switchSlider::after{
+  transform: translateX(20px);
+}
+.switchInput:focus-visible + .switchSlider{
+  box-shadow: 0 0 0 2px rgba(79,140,255,.25);
+}
+.switchLabel{
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.main{
+  margin-top: 14px;
+  background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.tableWrap{
+  overflow:auto;
+}
+.table{
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 920px;
+}
+th,td{
+  border-bottom: 1px solid var(--line);
+  padding: 12px 10px;
+  text-align: left;
+  font-size: 14px;
+}
+th{
+  position: sticky;
+  top: 0;
+  background: rgba(10,18,33,.85);
+  backdrop-filter: blur(10px);
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: .2px;
+  z-index: 1;
+}
+tr:hover td{
+  background: rgba(255,255,255,.02);
+}
+
+.cell{
+  border-radius: 10px;
+  padding: 8px 10px;
+  display:inline-flex;
+  min-width: 90px;
+  align-items:center;
+  gap: 8px;
+  border: 1px solid transparent;
+}
+.cell--editable{
+  cursor: pointer;
+  background: rgba(255,255,255,.02);
+  border-color: rgba(255,255,255,.06);
+}
+.cell--editable:hover{
+  border-color: rgba(79,140,255,.45);
+}
+.cell--dirty{
+  border-color: rgba(255,176,32,.55);
+  background: rgba(255,176,32,.08);
+}
+.cell--submitted{
+  border-color: rgba(46,204,113,.28);
+  background: rgba(46,204,113,.06);
+}
+
+/* 表格内成绩输入框：与页面深色主题统一，不违和 */
+.cellInput{
+  width: 100%;
+  min-width: 72px;
+  max-width: 120px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(0,0,0,.2);
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+  -moz-appearance: textfield;
+}
+.cellInput::-webkit-outer-spin-button,
+.cellInput::-webkit-inner-spin-button{
+  -webkit-appearance: none;
+  margin: 0;
+}
+.cellInput::placeholder{
+  color: var(--muted);
+  opacity: 0.8;
+}
+.cellInput:hover{
+  border-color: rgba(255,255,255,.12);
+}
+.cellInput:focus{
+  border-color: rgba(79,140,255,.5);
+  box-shadow: 0 0 0 2px rgba(79,140,255,.15);
+}
+
+.statusTime{
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.muted{
+  color: var(--muted);
+  font-size: 12px;
+}
+.status{
+  display:inline-flex;
+  align-items:center;
+  gap: 8px;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.02);
+}
+.status--submitted{
+  border-color: rgba(46,204,113,.25);
+  background: rgba(46,204,113,.08);
+  color: #bfead0;
+}
+.status--draft{
+  border-color: rgba(255,176,32,.22);
+  background: rgba(255,176,32,.08);
+  color: #ffe1a7;
+}
+.status--submitting{
+  border-color: rgba(79,140,255,.30);
+  background: rgba(79,140,255,.10);
+  color: #cfe0ff;
+}
+
+.footerBar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+  padding: 12px 12px;
+  background: rgba(0,0,0,.18);
+}
+.footerActions{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+}
+
+.pager{
+  display:flex;
+  align-items:center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.pager .btn{
+  padding: 8px 10px;
+}
+
+.btn{
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.03);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+.btn:hover{ border-color: rgba(255,255,255,.18); }
+.btn:disabled{ opacity:.5; cursor:not-allowed; }
+.btn--primary{
+  border-color: rgba(79,140,255,.4);
+  background: linear-gradient(180deg, rgba(79,140,255,.45), rgba(47,111,255,.35));
+}
+.btn--primary:hover{
+  border-color: rgba(79,140,255,.65);
+}
+.btn--danger{
+  border-color: rgba(255,77,79,.35);
+  background: linear-gradient(180deg, rgba(255,77,79,.35), rgba(255,77,79,.22));
+}
+.btn--danger:hover{
+  border-color: rgba(255,77,79,.55);
+}
+
+.btn--mini{
+  padding: 7px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+.btn--danger-soft{
+  border-color: rgba(255,77,79,.30);
+  background: rgba(255,77,79,.08);
+}
+.btn--danger-soft:hover{
+  border-color: rgba(255,77,79,.55);
+}
+.opCell{
+  display:flex;
+  gap: 8px;
+  align-items:center;
+  justify-content:flex-start;
+  flex-wrap: wrap;
+}
+
+.overlay{
+  position: fixed;
+  inset: 0;
+  display:grid;
+  place-items:center;
+  z-index: 50;
+}
+.overlay__backdrop{
+  position:absolute;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+}
+.overlay__box{
+  position: relative;
+  width: min(420px, 92vw);
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(12,23,48,.9);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--shadow);
+}
+.overlay__title{
+  font-weight: 720;
+  margin-bottom: 10px;
+}
+.overlay__input{
+  width: 100%;
+  padding: 12px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(0,0,0,.20);
+  color: var(--text);
+  outline: none;
+  font-size: 16px;
+}
+.overlay__hint{
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+@media (max-width: 920px){
+  .filters{ grid-template-columns: 1fr 1fr; }
+  .field--search{ grid-column: 1 / -1; }
+  .importBar{ grid-template-columns: 1fr; }
+  .importActions{ justify-content:flex-start; flex-wrap: wrap; }
+}
+

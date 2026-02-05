@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>登录 - 成绩录入系统</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <div class="title">
+          <div class="title__main">成绩录入系统</div>
+          <div class="title__sub">老师 / 管理员 登录</div>
+        </div>
+      </header>
+
+      <section class="panel loginPanel">
+        <div class="loginBox">
+          <div class="loginTitle">账号登录</div>
+          <div class="field">
+            <label class="field__label" for="username">用户名</label>
+            <input id="username" class="field__control" type="text" autocomplete="username" />
+          </div>
+          <div class="field">
+            <label class="field__label" for="password">密码</label>
+            <input id="password" class="field__control" type="password" autocomplete="current-password" />
+          </div>
+          <div class="loginActions">
+            <button id="loginBtn" class="btn btn--primary" type="button">登录</button>
+          </div>
+          <div id="loginHint" class="muted" style="margin-top:10px;"></div>
+          <div class="muted" style="margin-top:10px;">
+            没有账号？<button id="goRegisterBtn" type="button" class="btn btn--secondary" style="padding:4px 10px; font-size:12px;">去注册一个老师账号</button>
+          </div>
+          <div class="muted" style="margin-top:10px;">
+            初始管理员账号：<code>admin</code> / <code>admin123</code>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      async function api(path, opts) {
+        const res = await fetch(path, { credentials: "include", ...opts });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || "请求失败");
+        return data;
+      }
+
+      async function check() {
+        try {
+          await api("/api/me");
+          location.href = "/index.html";
+        } catch {}
+      }
+      check();
+
+      const els = {
+        username: document.getElementById("username"),
+        password: document.getElementById("password"),
+        loginBtn: document.getElementById("loginBtn"),
+        goRegisterBtn: document.getElementById("goRegisterBtn"),
+        hint: document.getElementById("loginHint"),
+      };
+
+      async function login() {
+        els.loginBtn.disabled = true;
+        els.hint.textContent = "正在登录…";
+        try {
+          await api("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              username: els.username.value.trim(),
+              password: els.password.value,
+            }),
+          });
+          location.href = "/index.html";
+        } catch (e) {
+          els.hint.textContent = "登录失败：" + (e?.message || String(e));
+        } finally {
+          els.loginBtn.disabled = false;
+        }
+      }
+
+      els.loginBtn.addEventListener("click", login);
+      els.goRegisterBtn.addEventListener("click", () => {
+        location.href = "/register.html";
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") login();
+      });
+    </script>
+  </body>
+</html>
+

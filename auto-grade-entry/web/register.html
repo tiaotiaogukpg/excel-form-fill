@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>注册 - 成绩录入系统</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <div class="title">
+          <div class="title__main">成绩录入系统</div>
+          <div class="title__sub">老师账号注册</div>
+        </div>
+      </header>
+
+      <section class="panel loginPanel">
+        <div class="loginBox">
+          <div class="loginTitle">注册老师账号</div>
+          <div class="field">
+            <label class="field__label" for="username">用户名</label>
+            <input id="username" class="field__control" type="text" autocomplete="username" placeholder="例如：teacher01" />
+          </div>
+          <div class="field">
+            <label class="field__label" for="password">密码</label>
+            <input id="password" class="field__control" type="password" autocomplete="new-password" placeholder="至少 6 位建议包含字母和数字" />
+          </div>
+          <div class="field">
+            <label class="field__label" for="password2">确认密码</label>
+            <input id="password2" class="field__control" type="password" autocomplete="new-password" placeholder="再次输入密码" />
+          </div>
+          <div class="loginActions">
+            <button id="registerBtn" class="btn btn--primary" type="button">注册并登录</button>
+            <button id="backLoginBtn" class="btn btn--secondary" type="button">返回登录</button>
+          </div>
+          <div id="hint" class="muted" style="margin-top:10px; min-height:1.2em;"></div>
+          <div class="muted" style="margin-top:10px;">
+            注册的账号默认是 <strong>老师</strong> 角色，如果需要管理员权限，请联系管理员在“账号管理”中为你创建。
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      async function api(path, opts) {
+        const res = await fetch(path, { credentials: "include", ...opts });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || "请求失败");
+        return data;
+      }
+
+      const els = {
+        username: document.getElementById("username"),
+        password: document.getElementById("password"),
+        password2: document.getElementById("password2"),
+        registerBtn: document.getElementById("registerBtn"),
+        backLoginBtn: document.getElementById("backLoginBtn"),
+        hint: document.getElementById("hint"),
+      };
+
+      async function registerAndLogin() {
+        const name = els.username.value.trim();
+        const pass1 = els.password.value;
+        const pass2 = els.password2.value;
+        if (!name || !pass1 || !pass2) {
+          els.hint.textContent = "请填写完整用户名和两次密码。";
+          return;
+        }
+        if (pass1 !== pass2) {
+          els.hint.textContent = "两次输入的密码不一致。";
+          return;
+        }
+        els.registerBtn.disabled = true;
+        els.hint.textContent = "正在注册并登录…";
+        try {
+          await api("/api/auth/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: name, password: pass1 }),
+          });
+          location.href = "/index.html";
+        } catch (e) {
+          els.hint.textContent = "注册失败：" + (e?.message || String(e));
+        } finally {
+          els.registerBtn.disabled = false;
+        }
+      }
+
+      els.registerBtn.addEventListener("click", registerAndLogin);
+      els.backLoginBtn.addEventListener("click", () => {
+        location.href = "/login.html";
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") registerAndLogin();
+      });
+    </script>
+  </body>
+</html>
+

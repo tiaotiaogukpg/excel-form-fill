@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>成绩录入系统（演示）</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <div class="title">
+          <div class="title__main">成绩录入系统（演示）</div>
+          <div class="title__sub">支持分页、单元格输入、自动算最终成绩、批量提交</div>
+        </div>
+        <div class="header__right">
+          <span id="currentUser" class="currentUser muted"></span>
+          <div id="dirtyHint" class="badge badge--unmodified">未修改</div>
+          <button id="adminBtn" class="btn btn--secondary" type="button" style="display:none; margin-left:10px;">账号管理</button>
+          <button id="changePwdBtn" class="btn btn--secondary" type="button" style="margin-left:10px;">修改密码</button>
+          <button id="logoutBtn" class="btn btn--secondary" type="button" style="margin-left:10px;">退出</button>
+        </div>
+      </header>
+
+      <section class="panel">
+        <div class="filters">
+          <div class="field">
+            <label class="field__label" for="classSelect">班级</label>
+            <select id="classSelect" class="field__control"></select>
+          </div>
+          <div class="field">
+            <label class="field__label" for="courseSelect">课程</label>
+            <select id="courseSelect" class="field__control"></select>
+          </div>
+          <div class="field field--search">
+            <label class="field__label" for="searchInput">搜索姓名</label>
+            <input id="searchInput" class="field__control" type="text" placeholder="输入姓名关键字（仅影响显示）" />
+          </div>
+          <div class="field field--small">
+            <label class="field__label" for="pageSizeSelect">每页</label>
+            <select id="pageSizeSelect" class="field__control">
+              <option value="10" selected>10</option>
+              <option value="15">15</option>
+              <option value="20">20</option>
+              <option value="38">全部</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="topActionsRow">
+          <div class="gradeFormulaBlock">
+            <span id="gradeFormulaHintPanel" class="gradeFormulaHintPanel"></span>
+            <button id="setGradeFormulaBtn" class="btn btn--primary" type="button" title="自定义成绩比例" aria-label="设置成绩比例">设置比例</button>
+          </div>
+          <div class="studentDataActions">
+            <button id="addStudentBtn" class="btn btn--primary" type="button" aria-label="添加学生">添加学生</button>
+            <button id="submitBtn" class="btn btn--primary" type="button" style="display: none" aria-label="提交本页">提交本页</button>
+            <button id="submitAllBtn" class="btn btn--secondary" type="button" style="display: none" aria-label="提交全部">提交全部</button>
+          </div>
+        </div>
+        <p class="panelHint muted">逐条添加学生，或使用下方「导入自己的表格」批量导入 Excel。</p>
+
+        <div class="importOwnTableBlock">
+          <h3 class="importOwnTableBlock__title">导入自己的表格</h3>
+          <p class="importOwnTableBlock__hint muted">选择 .xlsx、.xls 或 .csv 文件，选好工作表后点击「导入」。</p>
+        <div class="importBar">
+          <div class="field field--file importOwnTableField">
+            <label class="field__label field__label--import" for="excelFile">选择表格文件</label>
+            <div class="fileWrap fileWrap--prominent">
+              <input id="excelFile" class="field__control field__control--file" type="file" accept=".xlsx,.xls,.csv" aria-label="选择表格文件（Excel 或 CSV）" />
+              <span class="fileLabel" id="excelFileLabel">未选择文件</span>
+            </div>
+          </div>
+          <div class="field field--sheet">
+            <label class="field__label" for="sheetSelect">工作表</label>
+            <select id="sheetSelect" class="field__control" disabled>
+              <option value="">请先选择文件</option>
+            </select>
+          </div>
+          <div class="importActions">
+            <button id="importBtn" class="btn btn--primary" type="button">导入</button>
+            <button id="importAndSubmitAllBtn" class="btn btn--primary" type="button" style="display:none">导入并提交全部</button>
+            <button id="resetBtn" class="btn btn--danger" type="button">删除数据</button>
+          </div>
+          <label class="importToggle switchWrap muted" for="autoSubmitToggle">
+            <input id="autoSubmitToggle" class="switchInput" type="checkbox" checked />
+            <span class="switchSlider" aria-hidden="true"></span>
+            <span class="switchLabel">导入后自动提交（当前班级 + 科目）</span>
+          </label>
+          <div id="importHint" class="importHint muted"></div>
+        </div>
+        </div>
+      </section>
+
+      <main class="main">
+        <div id="gradeFormulaHint" class="gradeFormulaHint muted"></div>
+        <div id="mainTableWrap" class="tableWrap">
+          <!-- 全局单一内联输入框：固定 id 便于自动化/Agent 稳定定位，避免点「考试成绩」后仍往旧索引输入 -->
+          <div id="inlineEditOverlay" class="inlineEditOverlay" style="display: none;">
+            <input id="grade-inline-input" type="number" class="cellInput" min="0" max="100" step="1" aria-label="" />
+          </div>
+          <table class="table" aria-label="成绩录入表">
+            <thead>
+              <tr>
+                <th style="width: 72px">序号</th>
+                <th style="width: 140px">班级</th>
+                <th style="width: 140px">姓名</th>
+                <th style="width: 160px">课程</th>
+                <th style="width: 140px">平时成绩</th>
+                <th style="width: 140px">考试成绩</th>
+                <th style="width: 140px">最终成绩</th>
+                <th style="width: 120px">状态</th>
+                <th style="width: 150px">操作</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+
+        <div id="mainFooterBar" class="footerBar">
+          <div class="pager" id="pager"></div>
+        </div>
+      </main>
+    </div>
+
+    <!-- 单元格输入浮层 -->
+    <div id="editorOverlay" class="overlay" style="display: none">
+      <div class="overlay__backdrop"></div>
+      <div class="overlay__box">
+        <div class="overlay__title">输入成绩</div>
+        <input id="editorInput" class="overlay__input" type="number" min="0" max="100" step="1" />
+        <div class="overlay__hint">回车保存，ESC 取消</div>
+      </div>
+    </div>
+
+    <!-- 通用确认弹窗（删除数据等） -->
+    <div id="confirmOverlay" class="overlay overlay--confirm" style="display: none">
+      <div class="overlay__backdrop"></div>
+      <div class="overlay__box overlay__box--confirm">
+        <div id="confirmTitle" class="overlay__title"></div>
+        <p id="confirmMessage" class="overlay__message"></p>
+        <div class="overlay__actions">
+          <button id="confirmCancelBtn" class="btn btn--secondary" type="button">取消</button>
+          <button id="confirmOkBtn" class="btn btn--primary" type="button">确定</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 单个学生成绩录入浮层 -->
+    <div id="addStudentOverlay" class="overlay" style="display: none">
+      <div class="overlay__backdrop"></div>
+      <div class="overlay__box" style="min-width: 360px;">
+        <div class="overlay__title">添加学生成绩</div>
+        <div class="field" style="margin-top:12px;">
+          <label class="field__label" for="addStudentClass">班级</label>
+          <select id="addStudentClass" class="field__control overlay__input"></select>
+        </div>
+        <div class="field" style="margin-top:10px;">
+          <label class="field__label" for="addStudentName">姓名</label>
+          <input id="addStudentName" class="field__control overlay__input" type="text" placeholder="请输入姓名" />
+        </div>
+        <div class="field" style="margin-top:10px;">
+          <label class="field__label" for="addStudentCourse">课程</label>
+          <select id="addStudentCourse" class="field__control overlay__input"></select>
+        </div>
+        <div class="field" style="margin-top:10px;">
+          <label class="field__label" for="addStudentUsual">平时成绩</label>
+          <input id="addStudentUsual" class="field__control overlay__input" type="number" min="0" max="100" step="1" placeholder="0–100" />
+        </div>
+        <div class="field" style="margin-top:10px;">
+          <label class="field__label" for="addStudentExam">考试成绩</label>
+          <input id="addStudentExam" class="field__control overlay__input" type="number" min="0" max="100" step="1" placeholder="0–100" />
+        </div>
+        <div class="field" style="margin-top:10px;">
+          <label class="field__label">最终成绩</label>
+          <span id="addStudentFinal" class="overlay__hint muted">填写平时/考试后自动计算</span>
+        </div>
+        <div id="addStudentHint" class="overlay__hint muted" style="margin-top:8px; min-height:1.2em;"></div>
+        <div style="margin-top:14px; display:flex; gap:10px; justify-content:flex-end;">
+          <button id="addStudentCancel" class="btn btn--secondary" type="button">取消</button>
+          <button id="addStudentSubmit" class="btn btn--primary" type="button">确定</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 添加课程/学科弹窗 -->
+    <div id="addCourseOverlay" class="overlay" style="display: none">
+      <div class="overlay__backdrop"></div>
+      <div class="overlay__box" style="min-width: 320px;">
+        <div class="overlay__title">请输入新课程/学科名称</div>
+        <div class="field" style="margin-top:12px;">
+          <label class="field__label" for="addCourseInput">课程名称</label>
+          <input id="addCourseInput" class="field__control overlay__input" type="text" placeholder="例如：语文、数学" />
+        </div>
+        <div id="addCourseHint" class="overlay__hint muted" style="margin-top:8px; min-height:1.2em;"></div>
+        <div style="margin-top:14px; display:flex; gap:10px; justify-content:flex-end;">
+          <button id="addCourseCancel" class="btn btn--secondary" type="button">取消</button>
+          <button id="addCourseSubmit" class="btn btn--primary" type="button">确定</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 自定义成绩比例弹窗 -->
+    <div id="gradeFormulaOverlay" class="overlay" style="display: none">
+      <div class="overlay__backdrop"></div>
+      <div class="overlay__box overlay__box--gradeFormula" style="min-width: 320px;">
+        <div class="overlay__title overlay__title--gradeFormula">自定义成绩比例</div>
+        <p class="overlay__hint muted" style="margin-top:8px;">平时成绩与考试成绩权重之和应为 100%。</p>
+        <div class="field gradeFormulaField">
+          <label class="field__label field__label--gradeFormula" for="gradeFormulaUsual">平时成绩（%）</label>
+          <input id="gradeFormulaUsual" class="field__control overlay__input gradeFormulaInput" type="number" min="0" max="100" step="1" placeholder="40" aria-label="平时成绩占比" />
+        </div>
+        <div class="field gradeFormulaField">
+          <label class="field__label field__label--gradeFormula" for="gradeFormulaExam">考试成绩（%）</label>
+          <input id="gradeFormulaExam" class="field__control overlay__input gradeFormulaInput" type="number" min="0" max="100" step="1" placeholder="60" aria-label="考试成绩占比" />
+        </div>
+        <div id="gradeFormulaOverlayHint" class="overlay__hint muted" style="margin-top:8px; min-height:1.2em;"></div>
+        <div style="margin-top:14px; display:flex; gap:10px; justify-content:flex-end;">
+          <button id="gradeFormulaCancel" class="btn btn--secondary" type="button">取消</button>
+          <button id="gradeFormulaSubmit" class="btn btn--primary" type="button">确定</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 添加班级弹窗（统一样式） -->
+    <div id="addClassOverlay" class="overlay" style="display: none">
+      <div class="overlay__backdrop"></div>
+      <div class="overlay__box" style="min-width: 320px;">
+        <div class="overlay__title">请输入新班级名称</div>
+        <div class="field" style="margin-top:12px;">
+          <label class="field__label" for="addClassInput">班级名称</label>
+          <input id="addClassInput" class="field__control overlay__input" type="text" placeholder="例如：高一(1)班" />
+        </div>
+        <div id="addClassHint" class="overlay__hint muted" style="margin-top:8px; min-height:1.2em;"></div>
+        <div style="margin-top:14px; display:flex; gap:10px; justify-content:flex-end;">
+          <button id="addClassCancel" class="btn btn--secondary" type="button">取消</button>
+          <button id="addClassSubmit" class="btn btn--primary" type="button">确定</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 修改密码浮层 -->
+    <div id="changePwdOverlay" class="overlay" style="display: none">
+      <div class="overlay__backdrop"></div>
+      <div class="overlay__box" style="min-width: 320px;">
+        <div class="overlay__title">修改密码</div>
+        <div class="field" style="margin-top:12px;">
+          <label class="field__label" for="changePwdOld">当前密码</label>
+          <input id="changePwdOld" class="field__control overlay__input" type="password" placeholder="请输入当前密码" />
+        </div>
+        <div class="field" style="margin-top:10px;">
+          <label class="field__label" for="changePwdNew">新密码</label>
+          <input id="changePwdNew" class="field__control overlay__input" type="password" placeholder="请输入新密码" />
+        </div>
+        <div class="field" style="margin-top:10px;">
+          <label class="field__label" for="changePwdConfirm">确认新密码</label>
+          <input id="changePwdConfirm" class="field__control overlay__input" type="password" placeholder="请再次输入新密码" />
+        </div>
+        <div id="changePwdHint" class="overlay__hint muted" style="margin-top:10px; min-height:1.2em;"></div>
+        <div style="margin-top:14px; display:flex; gap:10px; justify-content:flex-end;">
+          <button id="changePwdCancel" class="btn btn--secondary" type="button">取消</button>
+          <button id="changePwdSubmit" class="btn btn--primary" type="button">确定</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 用于浏览器端解析 Excel（需要联网拉 CDN；如需离线可改为本地文件） -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
+

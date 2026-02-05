@@ -1,0 +1,18 @@
+{
+  "users": [
+    {
+      "id": "U_b805e6aaf40664047c31",
+      "username": "admin",
+      "password_hash": "$2a$10$0xcSjP4oh9JeLuCuSPevnOXJ5LXoM.wKvWsbViWbkZgAf.zClgfCq",
+      "role": "admin",
+      "created_at": 1769591784349
+    },
+    {
+      "id": "U_841dcad512bae25e9a81",
+      "username": "teacher1",
+      "password_hash": "$2a$10$SMtzMIs9IiuLhGxgar7jm.EODLzvyVYIYCYHO1C7aZAYlyoJC97KG",
+      "role": "teacher",
+      "created_at": 1769592443579
+    }
+  ]
+}
