@@ -36,3 +36,8 @@ __pycache__/
 
 # Experiments / temp
 ExperimentLessonFiles/
+# 在路径前加 **/ 可以确保匹配所有子目录下的 venv
+**/venv/
+**/.venv/
+**/__pycache__/
+**/.env
